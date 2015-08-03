@@ -1,0 +1,5 @@
+*.dmp
+*.log
+node_modules/
+*.bin
+
