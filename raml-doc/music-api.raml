@@ -2,33 +2,28 @@
 
 title: music-api
 baseUri: http://localhost:7474/music-api
-version: v0.1
+version: v0.1.0
+mediaType: application/json
 
 /play:
-  description: Plays current song, or from a path
+  description: Plays current song, or from a path, for an optional duration
   post:
     body:
-      application/json:
-        example: |
-          { "entry":"./music/song1.mp3",
-            "duration":456 }
+      example: |  
+          { 
+            "songPath":"~/music/chiptunes/reformat_the_planet.mp3",
+            "secondsToPlay": 14 
+          }
     responses:
       200:
         body:
-          application/json:
-            example: |
-              { "message":"playing song <song_name> 
-                for duration <duration>" }
-      400:
+          example: !include current_song_info.example.json 
+      422:
         body:
-          application/json:
-            example: |
-              { "error":"couldn't find <song_path>" }
-      500:
-        body:
-          application/json:
-            example: |
-              { "error":"couldn't play song" }
+          example: | 
+            { 
+              "error":"couldn't find song at <songPath>" 
+            }
 
 /pause:
   description: pause current song
@@ -36,14 +31,8 @@ version: v0.1
     responses:
       200:
         body:
-          application/json:
-            example: |
-              { "message":"paused current song" }
-      500:
-        body:
-          application/json:
-            example: |
-              { "error":"couldn't pause current song" }
+          example: | 
+            { "message":"paused current song" }
 
 /stop:
   description: stop current song
@@ -51,41 +40,18 @@ version: v0.1
     responses:
       200:
         body:
-          application/json:
-            example: |
-              { "message":"stopped current song" }
-      500:
-        body:
-          application/json:
-            example: |
-              { "error":"couldn't stop current song" }
+          example: | 
+            { "message":"stopped current song" }
 
 /current:
-  description: get current song info
+  description: Returns current song info
   get:
     responses:
       200:
         body:
-          application/json:
-            example: !include current_song_info.example.json 
-      500:
-        body:
-          application/json:
-            example: |
-              { "error":"couldn't get current song info" }
+          example: !include current_song_info.example.json 
+      404:
+        description: Nothing is currently playing
 
-/status:
-  description: get current status
-  get:
-    responses:
-      200:
-        body:
-          application/json:
-            example: !include current_status.example.json
-      500:
-        body:
-          application/json:
-            example: |
-              { "error":"couldn't get current status" }
 
 
