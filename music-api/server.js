@@ -25,6 +25,7 @@ var mipod_api_url = process.env.MIPOD_URL || 'http://localhost:8484/mipod';
 
 //music-api module
 var Music = require('./routes/music-api');
+var music = new Music(mipod_api_url);
 
 //welcome/test route
 server.get(base_path + '/', function(req,res,next){
