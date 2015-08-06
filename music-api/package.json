@@ -2,6 +2,7 @@
     "name":"mipod-extension-api",
     "description":"A small API which accesses a running mipod API, but adds some extra features",
     "dependencies": {
-        "restify":"~3.0.0"    
+        "restify":"~3.0.0",
+        "node-mocks-http": "~1.4.3"
     }
 }
