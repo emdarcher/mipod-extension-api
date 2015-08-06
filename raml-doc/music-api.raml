@@ -10,13 +10,15 @@ version: v0.1
     body:
       application/json:
         example: |
-          { "entry":"./music/song1.mp3" }
+          { "entry":"./music/song1.mp3",
+            "duration":456 }
     responses:
       200:
         body:
           application/json:
             example: |
-              { "message":"playing song <song_name>" }
+              { "message":"playing song <song_name> 
+                for duration <duration>" }
       400:
         body:
           application/json:
@@ -27,30 +29,6 @@ version: v0.1
           application/json:
             example: |
               { "error":"couldn't play song" }
-  /{duration}:
-    post:
-      body:
-        application/json:
-          example: |
-            { "entry":"./music/song1.mp3" }
-      responses:
-        200:
-          body:
-            application/json:
-              example: |
-                { "message":"playing song <song_name> for 
-                `{duration}` milliseconds" }
-        400:
-          body:
-            application/json:
-              example: |
-                { "error":"couldn't find <song_path>" }
-        500:
-          body:
-            application/json:
-              example: |
-                { "error":"couldn't play song" }
-      
 
 /pause:
   description: pause current song
