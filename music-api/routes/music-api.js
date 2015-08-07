@@ -15,8 +15,8 @@ module.exports = function Music( url_path ){
         port: parsed_url.port
     };
     
-    this.playTimeoutSec = 0;
-    this.playTimeout;
+    var playTimeoutSec = 0;
+    var playTimeout;
 
     var mipod_client = restify.createJsonClient({
         url: 'http://' + mipod_api.host
@@ -28,26 +28,41 @@ module.exports = function Music( url_path ){
         console.log('%j', obj);
     };
 
+    var stopNoParams = function(next_cb){
+        this.stop({}, new httpMocks.createResponse(),next_cb);
+    }.bind(this);
+
     this.play = function(req, res, next){
         //plays song
+        
         
         //set single mode on
         mipod_client.get(mipod_api.api_path + '/single/1',
                 function(e, rq, rs, ob){
                 client_res_log_cb(e, rq, rs, ob) }); 
-            
+        
+        //async.series([
+
+        //function(callback){ 
+
         //stop playback before we play
-        this.stop({}, new httpMocks.createResponse(),function (){ 
-    
+        this.stop({}, new httpMocks.createResponse(),function(){
+            //return callback(null,1);}); 
+            }); 
+        
+        //    callback(null,1);
+        //}, function(callback){
+
         //check if they provided a secondsToPlay param, if so create
         //a timeout to to stop the song after that time.
         if(req.params.secondsToPlay !== undefined){
-            this.playTimeoutSec = req.params.secondsToPlay;
-            this.playTimeout = new setTimeout(
+            playTimeoutSec = req.params.secondsToPlay;
+            playTimeout = new setTimeout(
                 //call stop with fake req and res
-                this.stop({}, httpMocks.createResponse(), function(){} ),
-                this.playTimeoutSec * 1000 ); 
-        } else { this.playTimeoutSec = undefined; }
+                //this.stop({}, httpMocks.createResponse(), function(){} ),
+                stopNoParams(function(){}),
+                playTimeoutSec * 1000 ); 
+        } else { playTimeoutSec = -1; }
         
         //check if they provided a path, if so call play for that path
         if(req.params.songPath !== undefined){
@@ -56,18 +71,21 @@ module.exports = function Music( url_path ){
                     function ( e, rq, rs, ob) {
                         client_res_log_cb(e,rq,rs,ob);
                         //call current for song details     
-                        this.current({}, res, next);               
+                        //this.current(req, res, next);               
                     });
         } else {
             mipod_client.get(mipod_api.api_path + '/play',
                     function ( e, rq, rs, ob) {
                         client_res_log_cb(e,rq,rs,ob);
                         //call current for song details     
-                        this.current({}, res, next); 
+                        //this.current(req, res, next);
                     });
         }
-
-        });
+        this.current(req,res,next); 
+        //callback(null,2);
+        //});
+        //}]);
+        
         return next(); 
     }.bind(this);
 
@@ -124,6 +142,7 @@ module.exports = function Music( url_path ){
                 });
         return next();
     }.bind(this);
+    //}.bind(this);
     this.pause = function(req, res, next){
         //pauses song 
         mipod_client.get(mipod_api.api_path + '/pause',
