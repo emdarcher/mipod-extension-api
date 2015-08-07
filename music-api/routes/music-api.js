@@ -5,9 +5,9 @@ var assert = require('assert');
 var url = require('url');
 var httpMocks = require('node-mocks-http');
 
-var Step = require('step');
+var async = require('async');
 
-module.exports = function( url_path ){
+module.exports = function Music( url_path ){
     var parsed_url = url.parse(url_path);
     var mipod_api = {
         host: parsed_url.host,
@@ -69,41 +69,49 @@ module.exports = function( url_path ){
 
         });
         return next(); 
-    };
+    }.bind(this);
 
     //gets the current info for the song
     this.current = function(req, res, next){
         //empty objects to store responses for parsing
-        var current_info = {};
-        var status_info = {};
-        mipod_client.get(mipod_api.api_path + '/current',
-                function(e, rq, rs, ob) {
-                    client_res_log_cb(e, rq, rs, ob);
-                    current_info = ob;
-                }); 
-        mipod_client.get(mipod_api.api_path + '/status',
-                function(e, rq, rs, ob) {
-                    client_res_log_cb(e, rq, rs, ob);
-                    status_info = ob;
-                });
-        //if the status of playback is stopped then there is no current song 
-        if(status_info.state == 'stop'){
-            res.json(404, {error:"Nothing is playing"}); 
-        } else {
-            var response_info = {
-                file: current_info.song.file, 
-                title: current_info.song.title,
-                album: current_info.song.album,
-                artist: current_info.song.artist,
-                lengthInSeconds: current_info.song.time,
-                secondsToPlay: playTimeoutSec,
-                secondsElapsed: status_info.elapsed  
-            }; 
-            res.json(response_info);
-        }
-
+        var current_info;// = {};
+        var status_info;// = {};
+        async.series([
+        function(callback){
+            mipod_client.get(mipod_api.api_path + '/current',
+                    function(e, rq, rs, ob) {
+                        client_res_log_cb(e, rq, rs, ob);
+                        current_info = ob;
+                        callback(null, 1);
+                    });
+        }, function(callback){
+            mipod_client.get(mipod_api.api_path + '/status',
+                    function(e, rq, rs, ob) {
+                        client_res_log_cb(e, rq, rs, ob);
+                        status_info = ob;
+                        callback(null, 2);
+                    });
+        }, function(callback){
+            //if the status of playback is stopped 
+            //then there is no current song 
+            if(status_info.state == 'stop'){
+                res.json(404, {error:"Nothing is playing"}); 
+            } else {
+                var response_info = {
+                    file: current_info.song.file, 
+                    title: current_info.song.title,
+                    album: current_info.song.album,
+                    artist: current_info.song.artist,
+                    lengthInSeconds: current_info.song.time,
+                    secondsToPlay: playTimeoutSec,
+                    secondsElapsed: status_info.elapsed  
+                }; 
+                res.json(response_info);
+            }
+            callback(null,3);
+        }]);
         return next();
-    };
+    }.bind(this);
 
     this.stop = function(req, res, next){
         //stops song
@@ -115,7 +123,7 @@ module.exports = function( url_path ){
                     } else { res.json(500); }
                 });
         return next();
-    };
+    }.bind(this);
     this.pause = function(req, res, next){
         //pauses song 
         mipod_client.get(mipod_api.api_path + '/pause',
@@ -126,6 +134,6 @@ module.exports = function( url_path ){
                     } else { res.json(500); }
                 });
         return next();
-    };
+    }.bind(this);
 
 };

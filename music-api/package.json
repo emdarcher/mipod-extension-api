@@ -4,6 +4,6 @@
     "dependencies": {
         "restify":"~3.0.0",
         "node-mocks-http": "~1.4.3",
-        "step": "~0.0.6"
+        "async": "~1.4.0"
     }
 }
