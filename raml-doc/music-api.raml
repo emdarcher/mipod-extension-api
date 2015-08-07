@@ -6,7 +6,9 @@ version: v0.1.0
 mediaType: application/json
 
 /play:
-  description: Plays current song, or from a path, for an optional duration
+  description: |
+        Plays current song in playlist, or a song file from 
+        the provided path, for an optional duration in seconds.
   post:
     body:
       example: |  
@@ -18,12 +20,12 @@ mediaType: application/json
       200:
         body:
           example: !include current_song_info.example.json 
-      422:
-        body:
-          example: | 
-            { 
-              "error":"couldn't find song at <songPath>" 
-            }
+# this error is handled by mipod api and get's forwarded automatically 
+# by restify's error handler. Gets sent as a code 500 InternalServer error.
+#      422:
+#        body:
+#          example: | 
+#            { "error":"couldn't find song at <songPath>" }
 
 /pause:
   description: pause current song

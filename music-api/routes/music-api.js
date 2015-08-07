@@ -1,6 +1,5 @@
 //music-api
 
-
 //required modules
 var restify = require('restify');
 var assert = require('assert');
@@ -16,7 +15,6 @@ var mipod_client;
 //global vars for the playTimeout
 var playTimeoutSec = -1;
 var playTimeout;
-
 
 var init_running = true;
 
@@ -160,7 +158,6 @@ exports.stop = function(req, res, next){
             });
     return next();
 };
-//}.bind(this);
 exports.pause = function(req, res, next){
     //pauses song 
     mipod_client.get(mipod_api.api_path + '/pause',
