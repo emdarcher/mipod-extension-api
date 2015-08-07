@@ -25,7 +25,6 @@ var mipod_api_url = process.env.MIPOD_URL || 'http://localhost:8484/mipod';
 
 //music-api module
 var music = require('./routes/music-api');
-//var music = new Music(mipod_api_url);
 
 //welcome/test route
 server.get(base_path + '/', function(req,res,next){
@@ -39,15 +38,16 @@ server.post(base_path + '/pause/', music.pause );
 server.post(base_path + '/stop/', music.stop );
 server.get(base_path + '/current/', music.current );
 
-
+//setup server
 server.listen(port, function() {
     console.log('Listening on port: ' + port + '\nbase path: ' + base_path);
+    //initialize music module with the mipod_api_url
+    music.init_Music(mipod_api_url, function(err) {
+        if(err){throw err;} else {
+            console.log('init done');
+        } 
+    });
 });
 
-music.init_Music(mipod_api_url, function(err) {
-    if(err){throw err;} else {
-        console.log('init done');
-    } 
-});
 
 
