@@ -16,7 +16,7 @@ module.exports = function Music( url_path ){
     };
     
     var playTimeoutSec = 0;
-    var playTimeout;
+    this.playTimeout;
 
     var mipod_client = restify.createJsonClient({
         url: 'http://' + mipod_api.host
@@ -57,12 +57,15 @@ module.exports = function Music( url_path ){
         //a timeout to to stop the song after that time.
         if(req.params.secondsToPlay !== undefined){
             playTimeoutSec = req.params.secondsToPlay;
-            playTimeout = new setTimeout(
+            this.playTimeout = new setTimeout(
                 //call stop with fake req and res
                 //this.stop({}, httpMocks.createResponse(), function(){} ),
                 stopNoParams(function(){}),
                 playTimeoutSec * 1000 ); 
-        } else { playTimeoutSec = -1; }
+        } else { 
+            clearTimeout(this.playTimeout);
+            playTimeoutSec = -1; 
+        }
         
         //check if they provided a path, if so call play for that path
         if(req.params.songPath !== undefined){
